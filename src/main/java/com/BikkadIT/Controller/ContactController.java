@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,24 +48,50 @@ public class ContactController {
 
 		List<Contact> allContact = contactServiceI.getAllContact();
 
-		if (allContact!=null) {
+		if (allContact != null) {
 
-			String msg = "All contacts Details \n"+allContact;
+			String msg = "All contacts Details \n" + allContact;
 			return new ResponseEntity<String>(msg, HttpStatus.FOUND);
 
-			
 		} else {
-			
 
 			String msg = "Contact not found";
+			
 			return new ResponseEntity<String>(msg, HttpStatus.BAD_REQUEST);
 
-		
 		}
-		
+	}
+	
+	
+	@GetMapping(value = "/getContactById/{cId}", produces = "application/json")
+	public ResponseEntity<Contact> getContactById(@PathVariable Integer cId) {
 
-		
+		Contact contact = contactServiceI.getContact(cId);
+
+		return new ResponseEntity<Contact>(contact, HttpStatus.FOUND);
 
 	}
+	
+	
+	@PutMapping(value = "/updateContact", consumes = "application/json")
+	public ResponseEntity<String> updateContact(@Valid @RequestBody Contact contact) {
+
+		boolean saveContact = contactServiceI.saveContact(contact);
+
+		if (saveContact == true) {
+
+			String msg = "Contact updated successfully";
+
+			return new ResponseEntity<String>(msg, HttpStatus.CREATED);
+		} else {
+			String msg = "Contact not save";
+
+			return new ResponseEntity<String>(msg, HttpStatus.BAD_REQUEST);
+
+		}
+
+	}
+	
+	
 
 }
