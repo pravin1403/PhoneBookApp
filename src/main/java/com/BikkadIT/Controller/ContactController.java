@@ -1,12 +1,14 @@
 package com.BikkadIT.Controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,14 +45,16 @@ public class ContactController {
 
 	}
 
-	@GetMapping(value = "/getAllContact", produces = "application/json")
+	@GetMapping(value = "/getAllContact")
 	public ResponseEntity<String> getAllContact() {
 
 		List<Contact> allContact = contactServiceI.getAllContact();
 
 		if (allContact != null) {
 
+		
 			String msg = "All contacts Details \n" + allContact;
+			
 			return new ResponseEntity<String>(msg, HttpStatus.FOUND);
 
 		} else {
@@ -63,13 +67,22 @@ public class ContactController {
 	}
 	
 	
-	@GetMapping(value = "/getContactById/{cId}", produces = "application/json")
-	public ResponseEntity<Contact> getContactById(@PathVariable Integer cId) {
+	@GetMapping(value = "/getContactById/{cId}")
+	public ResponseEntity<String> getContactById(@PathVariable Integer cId) {
 
-		Contact contact = contactServiceI.getContact(cId);
+		Optional<Contact> contact = contactServiceI.getContact(cId);
+		
+		if(contact.isPresent()) {
+			
+			String msg="Contact Details"+contact;
+			
+			return new ResponseEntity<String>(msg, HttpStatus.FOUND);
+		}else {
 
-		return new ResponseEntity<Contact>(contact, HttpStatus.FOUND);
-
+		String msg="Contact not found";
+		
+		return new ResponseEntity<String>(msg, HttpStatus.BAD_REQUEST);
+	}
 	}
 	
 	
@@ -93,5 +106,41 @@ public class ContactController {
 	}
 	
 	
+	@DeleteMapping(value = "/softDelete/{cId}")
+	public ResponseEntity<String> softDelete(@PathVariable Integer cId) {
+
+		 String softDelete = contactServiceI.softDelete(cId);
+		 
+		 if(softDelete==null) {
+		
+			return new ResponseEntity<String>(softDelete, HttpStatus.BAD_REQUEST);
+
+		}
+		 else {
+			 
+			 return new ResponseEntity<String>(softDelete, HttpStatus.OK);
+			 
+		 }
+
+	}
+	
+	@DeleteMapping(value = "/hardDelete/{cId}")
+	public ResponseEntity<String> hardDelete(@PathVariable Integer cId) {
+
+		 boolean hardDelete = contactServiceI.hardDelete(cId);
+		 
+		 
+		 if(hardDelete ) {
+		
+			return new ResponseEntity<String>("contact delete successfully", HttpStatus.BAD_REQUEST);
+
+		}
+		 else {
+			 
+			 return new ResponseEntity<String>("contact not delete", HttpStatus.OK);
+			 
+		 }
+
+	}
 
 }
